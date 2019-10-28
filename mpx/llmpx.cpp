@@ -1409,7 +1409,7 @@ bool llmpx::runOnModule(Module &module)
     this->module = &module;
     ctx = &module.getContext();
     //prepare global constant bound
-    create_global_mutex(module)
+    create_global_mutex(module);
     create_global_constants(module);
     /*
      * create mpx intrinsic symbols
