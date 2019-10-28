@@ -193,7 +193,9 @@ class llmpx : public ModulePass
         #ifdef CUSTOM_STATISTICS
         void dump_statistics();
         #endif
+        void create_global_mutex(Module &);
         void create_global_constants(Module&);
+  
         void collect_safe_access(Module&);
         /*
          * the safe access list, which we don't need to check
@@ -1327,6 +1329,26 @@ void llmpx::create_llmpx_wrapper_symbols(Module& module)
 /*
  * create global constants: constant bound and key/lock
  */
+void llmpx::create_global_mutex(Module &module)
+{
+    //Init the struct type
+    std::vector<llvm::Type *> elements;
+    elements.push_back(llvm::Type::getInt8Ty(*ctx));
+    elements.push_back(llvm::Type::getInt8Ty(*ctx));
+    llvm::StructType *structReg = llvm::StructType::create(*ctx, elements, "struct.Foo");
+
+
+//Access the struct member
+    // pthread_mutex_t f_lock;
+    // auto* StructType = StructType::get
+
+    // GlobalVariable mutex = new GlobalVariable(module,
+    //     ArrayTy,
+    //     flase,
+    //     &f_lock,
+    //     "mutex"
+    // );
+}
 void llmpx::create_global_constants(Module& module)
 {
     /*
@@ -1387,6 +1409,7 @@ bool llmpx::runOnModule(Module &module)
     this->module = &module;
     ctx = &module.getContext();
     //prepare global constant bound
+    create_global_mutex(module)
     create_global_constants(module);
     /*
      * create mpx intrinsic symbols
