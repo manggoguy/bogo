@@ -1210,18 +1210,18 @@ void llmpx::create_TxHook_function(Module &module)
 
     
     FunctionType *TxHookTxEndType = FunctionType::get(VoidType, /* No ArgTypes,*/ false);
-    TxHookTxEnd = cast<Function > (module.getOrInsertFunction("TxHookTxEnd", TxHookTxEndType));
-    // TxHookTxEnd = Function::Create(TxHookTxEndType,
-    //                                 GlobalValue::ExternalLinkage,
-    //                                 "TxHookTxEnd",
-    //                                 &module);
+    //TxHookTxEnd = cast<Function > (module.getOrInsertFunction("TxHookTxEnd", TxHookTxEndType));
+    TxHookTxEnd = Function::Create(TxHookTxEndType,
+                                    GlobalValue::ExternalLinkage,
+                                    "TxHookTxEnd",
+                                    &module);
     FunctionType *TxHookTxBeginType = FunctionType::get(VoidType, /* No ArgTypes,*/ false);
-    TxHookTxBegin = cast<Function > (module.getOrInsertFunction("TxHookTxBegin", TxHookTxBeginType));
+    //TxHookTxBegin = cast<Function > (module.getOrInsertFunction("TxHookTxBegin", TxHookTxBeginType));
 
-    // TxHookTxBegin = Function::Create(TxHookTxBeginType,
-    //                                 GlobalValue::ExternalLinkage,
-    //                                 "TxHookTxBegin",
-    //                                 &module);
+    TxHookTxBegin = Function::Create(TxHookTxBeginType,
+                                    GlobalValue::ExternalLinkage,
+                                    "TxHookTxBegin",
+                                    &module);
 }
 /*
  * for bound cache symbols
@@ -3122,8 +3122,6 @@ void llmpx::transform_global(Module &module)
 #else
     Function *mainfunc = module.getFunction("main");
     Type *IntType = Type::getInt32Ty(module.getContext());
-
-    CallInst::Create(TxHookEnter_st, dyn_cast<Instruction> (mainfunc->begin()->getFirstInsertionPt()));
 
 
     BasicBlock &mbb = mainfunc->getEntryBlock();
