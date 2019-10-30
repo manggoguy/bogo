@@ -252,7 +252,7 @@ private:
     /*
          * MPX Intrinsic Functions
          */
-    Function *mpx_bndmk;
+    Function *mpx_bndmk; 
     Function *mpx_bndldx;
     Function *mpx_bndstx;
     Function *mpx_bndclrr;
@@ -1191,7 +1191,7 @@ void llmpx::create_TxHook_function(Module &module)
                                     &module);
 
     // Setup TxHookEnter_st
-    FunctionType *TxHookEnter_st_Type = FunctionType::get(VoidType, IntType, false);
+    FunctionType *TxHookEnter_st_Type = FunctionType::get(VoidType, /* No ArgTypes,*/ false);
     TxHookEnter_st = Function::Create(TxHookEnter_st_Type,
                                         GlobalValue::ExternalLinkage,
                                         "TxHookEnter_st",
@@ -1841,6 +1841,7 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     errs()<<"\n";
 #endif
     std::list<Value *> ilist;
+    Instruction *before = I;
     Instruction *insertPoint = GetNextInstruction(I);
     /*
      * need to cast ptr to desired type?
@@ -1916,7 +1917,11 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     }
     args.push_back(bnd);
 
+
+    //insert TxBegin and TxEnd
+    CallInst::Create(TxHookTxBegin, "", before);
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
+    CallInst::Create(TxHookTxEnd, "", bndstx);
     ilist.push_back(bndstx);
 
     insert_dbg_dump_bndldstx(bndstx, addr, false);
@@ -3111,6 +3116,11 @@ void llmpx::transform_global(Module &module)
     appendToGlobalCtors(module, llmpx_ctor, 100);
 #else
     Function *mainfunc = module.getFunction("main");
+    Type *IntType = Type::getInt32Ty(module.getContext());
+
+    CallInst::Create(TxHookEnter_st, dyn_cast<Instruction> (mainfunc->begin()->getFirstInsertionPt()));
+
+
     BasicBlock &mbb = mainfunc->getEntryBlock();
     IRBuilder<> builder0(dyn_cast<Instruction>(mbb.getFirstInsertionPt()));
     builder0.CreateCall(llmpx_ctor);
@@ -4547,6 +4557,8 @@ Value *llmpx::handleAlloca(Value *ii)
         //create bndmk
         Instruction *bndmkcall = CallInst::Create(mpx_bndmk, args,
                                                   alloca_inst->getName() + ".alc_bnd", next_i);
+        CallInst::Create(TxHookEnter_st, next_i);
+                                          
         blist->push_back(bndmkcall);
         TotalBNDMKAdded++;
 
