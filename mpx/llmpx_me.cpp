@@ -1161,6 +1161,7 @@ void llmpx::create_mpx_intr_symbols(Module &module)
 */
 void llmpx::create_TxHook_function(Module &module)
 {
+    errs() <<"Create_TxHook_function\n";
     Type *VoidType = Type::getVoidTy(module.getContext());
     Type *IntType = Type::getInt32Ty(module.getContext());
     FunctionType *TxHookInitType = FunctionType::get(VoidType, false);
