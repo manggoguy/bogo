@@ -1925,6 +1925,7 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
+    errs()<<"Before TxBegin\n";
     CallInst::Create(TxHookTxBegin, "", before);
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
     CallInst::Create(TxHookTxEnd, "", bndstx);
@@ -4561,7 +4562,6 @@ Value *llmpx::handleAlloca(Value *ii)
         //create bndmk
         Instruction *bndmkcall = CallInst::Create(mpx_bndmk, args,
                                                   alloca_inst->getName() + ".alc_bnd", next_i);
-        CallInst::Create(TxHookEnter_st, next_i);
                                           
         blist->push_back(bndmkcall);
         TotalBNDMKAdded++;
