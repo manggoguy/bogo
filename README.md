@@ -48,3 +48,5 @@ static library recommended, dynamic library may not work properly.
  * rtlib/llmpxrt/libllmpx_rt.so
  * rtlib/mpxrt/libmpxrt.so
 
+### How to execute bogo using TxRace
+ * clang <your_result_of_llmpx> "path_of_your_txrace" -lstdc++ -lm -ldl "rtl_of_bogo" -lpthread
