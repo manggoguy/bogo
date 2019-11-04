@@ -1928,7 +1928,7 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     errs()<<"Before TxBegin\n";
     CallInst::Create(TxHookTxBegin, "", before);
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
-    CallInst::Create(TxHookTxEnd, "", bndstx);
+    CallInst::Create(TxHookTxEnd, "", GetNextInstruction(bndstx));
     ilist.push_back(bndstx);
 
     insert_dbg_dump_bndldstx(bndstx, addr, false);
