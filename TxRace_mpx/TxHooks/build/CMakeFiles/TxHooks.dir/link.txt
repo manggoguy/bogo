@@ -1,0 +1,2 @@
+/usr/bin/ar qc libTxHooks.a  CMakeFiles/TxHooks.dir/TxHooks.o
+/usr/bin/ranlib libTxHooks.a

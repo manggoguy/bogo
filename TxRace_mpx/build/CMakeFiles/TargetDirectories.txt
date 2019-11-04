@@ -1,0 +1,14 @@
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/CMakeFiles/rebuild_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/CMakeFiles/edit_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/CMakeFiles/rebuild_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/CMakeFiles/TxHooks.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/CMakeFiles/edit_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/CMakeFiles/rebuild_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/CMakeFiles/tsan_rtl.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/CMakeFiles/edit_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/rtl/interception/CMakeFiles/rebuild_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/rtl/interception/CMakeFiles/tsan_icp.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/rtl/interception/CMakeFiles/edit_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/rtl/sanitizer_common/CMakeFiles/rebuild_cache.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/rtl/sanitizer_common/CMakeFiles/tsan_san.dir
+/home/mok/바탕화면/llvm/bogo/TxRace_mpx/build/TxHooks/tsan-compiler-rt/rtl/sanitizer_common/CMakeFiles/edit_cache.dir

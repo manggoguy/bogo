@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mok/바탕화면/llvm/TxRace/neongoby/runtime/TxHooks/tsan-compiler-rt/rtl/sanitizer_common/sanitizer_asm.h
+
+/home/mok/바탕화면/llvm/TxRace/neongoby/runtime/TxHooks/tsan-compiler-rt/rtl/tsan_rtl_amd64.S
+sanitizer_common/sanitizer_asm.h
+/home/mok/바탕화면/llvm/TxRace/neongoby/runtime/TxHooks/tsan-compiler-rt/rtl/sanitizer_common/sanitizer_asm.h
+
