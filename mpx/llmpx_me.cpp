@@ -1715,7 +1715,7 @@ end:
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
-    CAllInst::Create(TxHookTxBegin, "", I);
+    CallInst::Create(TxHookTxBegin, "", I);
     TotalBNDLDXAdded++;
 
     std::list<Value *> ilist;
