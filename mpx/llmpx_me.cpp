@@ -1715,6 +1715,7 @@ end:
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
+    CAllInst::Create(TxHookTxBegin, "", I);
     TotalBNDLDXAdded++;
 
     std::list<Value *> ilist;
@@ -1789,7 +1790,10 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
         args.push_back(ConstantInt::get(Type::getInt32Ty(*ctx), 0));
     }
 
+    //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
+    Instruction *after_bnd = GetNextInstruction(bndldx);
+    CallInst::Create(TxHookTxEnd);
     ilist.push_back(bndldx);
 
     bndldxlist.push_back(bndldx);
