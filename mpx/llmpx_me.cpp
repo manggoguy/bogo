@@ -3128,7 +3128,7 @@ void llmpx::transform_global(Module &module)
     appendToGlobalCtors(module, llmpx_ctor, 100);
 #else
     Function *mainfunc = module.getFunction("main");
-    if((*mainfunc)!=NULL){
+    if(mainfunc!=NULL){
         Type *IntType = Type::getInt32Ty(module.getContext());
 
 
