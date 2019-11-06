@@ -1401,6 +1401,7 @@ void llmpx::create_global_constants(Module &module)
     /*
      * constant bound
      */
+    errs()<<"Debug at create_global_constants\n";
     auto *ArrayTy = ArrayType::get(IntegerType::get(*ctx, 64), 2);
 
     bnd_infinite = new GlobalVariable(module,
