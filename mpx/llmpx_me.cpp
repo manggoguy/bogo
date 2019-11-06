@@ -1930,7 +1930,6 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
-    errs()<<"Before TxBegin\n";
     CallInst::Create(TxHookTxBegin, "", before);
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
     CallInst::Create(TxHookTxEnd, "", GetNextInstruction(bndstx));
@@ -3130,12 +3129,9 @@ void llmpx::transform_global(Module &module)
     Function *mainfunc = module.getFunction("main");
     if(mainfunc!=NULL){
         Type *IntType = Type::getInt32Ty(module.getContext());
-
-
         BasicBlock &mbb = mainfunc->getEntryBlock();
         IRBuilder<> builder0(dyn_cast<Instruction>(mbb.getFirstInsertionPt()));
         builder0.CreateCall(llmpx_ctor);
-        delete &builder0;
     }
 #endif
 
