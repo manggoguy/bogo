@@ -596,7 +596,8 @@ public:
         return "llmpx";
     }
     void getAnalysisUsage(AnalysisUsage &au) const override
-    {
+    {   
+        errs() << "getAnalysisUsage\n";
         au.setPreservesAll();
         au.addRequired<AAResultsWrapperPass>();
         au.addPreserved<GlobalsAAWrapperPass>();
