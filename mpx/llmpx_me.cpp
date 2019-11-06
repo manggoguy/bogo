@@ -1793,7 +1793,7 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
     Instruction *after_bnd = GetNextInstruction(bndldx);
-    CallInst::Create(TxHookTxEnd);
+    CallInst::Create(TxHookTxEnd, "", after_bnd);
     ilist.push_back(bndldx);
 
     bndldxlist.push_back(bndldx);
