@@ -1716,6 +1716,7 @@ std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
     CallInst::Create(TxHookTxBegin, "", I);
+    I = GetNextInstruction(I);
     TotalBNDLDXAdded++;
 
     std::list<Value *> ilist;
@@ -6132,7 +6133,7 @@ Value *llmpx::handleLoad(Value *ii)
          */
         Instruction *insertion_point = GetNextInstruction(i);
         std::list<Value *> ilist =
-            insert_bound_load(insertion_point,
+            insert_bound_load(i,
                               load_inst->getPointerOperand(),
                               load_inst);
         blist->splice(blist->end(), ilist);
@@ -8318,6 +8319,7 @@ void llmpx::harden_cfi(Module &module)
                     //great, we have a load instruction,
                     //we need to load its bound and do the check before
                     //calling the function pointer
+                    //insert txbegin/end
                     LoadInst *li = dyn_cast<LoadInst>(called_value);
                     Value *ptr_operand = li->getPointerOperand();
                     IRBuilder<> builder(I);
