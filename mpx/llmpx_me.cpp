@@ -1450,6 +1450,7 @@ void llmpx::create_global_constants(Module &module)
  */
 bool llmpx::runOnModule(Module &module)
 {
+    errs() << "runOnModule\n";
     this->module = &module;
     ctx = &module.getContext();
     //prepare global constant bound
