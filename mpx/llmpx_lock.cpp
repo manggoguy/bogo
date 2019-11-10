@@ -1169,7 +1169,7 @@ void llmpx::create_TxHook_function(Module &module)
 
     wrapper_mutex_unlock = Function::Create(mutex_unlock_type,
                                     GlobalValue::ExternalLinkage,
-                                    "pthread_mutex_unlock",
+                                    "wrapper_mutex_lock",
                                     &module);
 }
 /*
