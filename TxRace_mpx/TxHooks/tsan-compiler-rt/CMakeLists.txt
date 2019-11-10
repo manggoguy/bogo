@@ -6,6 +6,8 @@ set(CMAKE_ASM_COMPILER /usr/bin/c++)
 set(CMAKE_CXX_COMPILER /usr/bin/c++)
 set(CMAKE_CXX_FLAGS "-fPIC -O3 -fPIE -msse3 -Wframe-larger-than=512 -std=c++11 -Wall -Werror -fno-builtin -fno-exceptions -fno-rtti -fomit-frame-pointer")
 
+set_property(SOURCE rtl/tsan_rtl_amd64.S PROPERTY LANGUAGE C)
+
 set(TSAN_SOURCES
   rtl/tsan_clock.cc
   rtl/tsan_flags.cc
