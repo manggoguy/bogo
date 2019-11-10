@@ -263,7 +263,6 @@ private:
 
     void create_TxHook_function(Module &);
     // TxHook
-    Function *wrapper_mutex_init;
     Function *wrapper_mutex_lock;
     Function *wrapper_mutex_unlock;
 
@@ -1158,12 +1157,6 @@ void llmpx::create_TxHook_function(Module &module)
     
     Type *VoidType = Type::getVoidTy(module.getContext());
 
-    FunctionType *mutex_init_type = FunctionType::get(VoidType, /* No ArgTypes,*/ false);
-    //TxHookTxEnd = cast<Function > (module.getOrInsertFunction("TxHookTxEnd", TxHookTxEndType));
-    wrapper_mutex_init = Function::Create(mutex_init_type,
-                                    GlobalValue::ExternalLinkage,
-                                    "wrapper_mutex_init",
-                                    &module);
     FunctionType *mutex_lock_type = FunctionType::get(VoidType, /* No ArgTypes,*/ false);
     //TxHookTxBegin = cast<Function > (module.getOrInsertFunction("TxHookTxBegin", TxHookTxBeginType));
 
@@ -3089,7 +3082,6 @@ void llmpx::transform_global(Module &module)
         BasicBlock &mbb = mainfunc->getEntryBlock();
         IRBuilder<> builder0(dyn_cast<Instruction>(mbb.getFirstInsertionPt()));
         builder0.CreateCall(llmpx_ctor);
-        builder0.CreateCall(wrapper_mutex_init);
     }
 #endif
 
