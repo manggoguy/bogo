@@ -587,7 +587,6 @@ retry_tx:
 #endif
 	////////////////////////////////////////////////////////////////////////
 	status = _xbegin();
-	printf("Status is %d \n", status);
 
 	if (status == _XBEGIN_STARTED)
 	{
@@ -599,12 +598,11 @@ retry_tx:
 		 */
 		if (unlikely((pv & PV_MASK_FAST_PATH) != PV_FAST_PATH))
 		{	
-			printf("I think this is the proble\n");
 			//_xabort(0xEE);
 			_xabort(0x00);
 		}
 	} else {
-
+		printf("Status is : %d\n", status)
 #ifdef USE_DUMP_TXABRT_BRANCH
 		/*
 		 * dump LBR info when tx capacity abort
