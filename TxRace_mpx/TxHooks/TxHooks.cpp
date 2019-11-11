@@ -520,6 +520,7 @@ int gettid()
 
 __attribute__((__always_inline__)) inline void tx_begin(void)
 {
+	printf("tx_begin start\n");
 	unsigned int status = 0;
 	if (_xtest())
 	{
