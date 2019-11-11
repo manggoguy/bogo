@@ -906,7 +906,7 @@ static void cb_freeThreadInfo(void* arg)
 
 // DY: It is now safe to add tx_begin() in TxHookEnter as it is added
 //     only in the beginning of entry functions (e.g., main, thread_start, signal_handler, etc.)
-extern "C" void TxHookEnter(unsigned FuncID)
+extern "C" void TxHookEnter()
 {
 #ifdef USE_TX
 	//__sync_fetch_and_add(&tgi.thread_count,1);
@@ -943,7 +943,7 @@ extern "C" void TxHookEnter_st(unsigned FuncID)
  *     func(){ exit 0; }
  * see TxHookEnter for workaround
  */
-extern "C" void TxHookExit(unsigned FuncID)
+extern "C" void TxHookExit()
 {
 	if (get_state(pv, getHashedTID()))
 		tx_end();

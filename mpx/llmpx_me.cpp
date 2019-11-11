@@ -490,6 +490,8 @@ private:
     std::list<Value *>
     insert_key_load(Instruction *I, Value *ptr);
 
+    std::list<Value *> txbeginforldxlist;
+    std::list<Value *> txendforldxlist;
     /*
          * insert bndstx for ptr and bnd after Instruction I
          */
@@ -508,6 +510,9 @@ private:
     /*
          * rip off tail call attribute for call instruction
          */
+    std::list<Value *> txbeginforstxlist;
+    std::list<Value *> txendforstxlist;
+
     void ripoff_tail_call(Value *);
     /*
          * a set of global constant bound/key which might be useful
@@ -1186,7 +1191,7 @@ void llmpx::create_TxHook_function(Module &module)
                                         &module);
 
     // Setup TxHookEnter
-    FunctionType *TxHookEnterType = FunctionType::get(VoidType, IntType, false);
+    FunctionType *TxHookEnterType =  FunctionType::get(VoidType, /* No ArgTypes,*/ false);
     TxHookEnter = Function::Create(TxHookEnterType,
                                     GlobalValue::ExternalLinkage,
                                     "TxHookEnter",
@@ -1200,7 +1205,7 @@ void llmpx::create_TxHook_function(Module &module)
                                         &module);
 
     // Setup TxHookExit
-    FunctionType *TxHookExitType = FunctionType::get(VoidType, IntType, false);
+    FunctionType *TxHookExitType = FunctionType::get(VoidType, /* No ArgTypes,*/ false);
     TxHookExit = Function::Create(TxHookExitType,
                                     GlobalValue::ExternalLinkage,
                                     "TxHookExit",
@@ -1718,7 +1723,7 @@ end:
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
-    CallInst::Create(TxHookTxBegin, "", I);
+    CallInst::Create(TxHookEnter, "", I);
     I = GetNextInstruction(I);
     TotalBNDLDXAdded++;
 
@@ -1797,7 +1802,7 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
     Instruction *after_bnd = GetNextInstruction(bndldx);
-    CallInst::Create(TxHookTxEnd, "", after_bnd);
+    CallInst::Create(TxHookExit, "", after_bnd);
     ilist.push_back(bndldx);
 
     bndldxlist.push_back(bndldx);
@@ -1933,9 +1938,9 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
-    CallInst::Create(TxHookTxBegin, "", before);
+    CallInst::Create(TxHookEnter, "", before);
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
-    CallInst::Create(TxHookTxEnd, "", GetNextInstruction(bndstx));
+    CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
     ilist.push_back(bndstx);
 
     insert_dbg_dump_bndldstx(bndstx, addr, false);
