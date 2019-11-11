@@ -586,7 +586,10 @@ retry_tx:
 #endif
 #endif
 	////////////////////////////////////////////////////////////////////////
-	if ((status = _xbegin()) == _XBEGIN_STARTED)
+	status = _xbegin();
+	printf("Status is %d \n", status);
+
+	if (status == _XBEGIN_STARTED)
 	{
 		/*
 		 * read global abort variable, if global_abort_variable has been raised
