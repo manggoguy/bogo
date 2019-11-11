@@ -602,7 +602,7 @@ retry_tx:
 			_xabort(0x00);
 		}
 	} else {
-		printf("Status is : %d\n", status)
+		printf("Status is : %d\n", status);
 #ifdef USE_DUMP_TXABRT_BRANCH
 		/*
 		 * dump LBR info when tx capacity abort
