@@ -524,6 +524,7 @@ __attribute__((__always_inline__)) inline void tx_begin(void)
 	unsigned int status = 0;
 	if (_xtest())
 	{
+		printf("xTest() is not zero\n");
 		_xend();
 	}
 #ifdef _DYNAMIC_PRUNE_
