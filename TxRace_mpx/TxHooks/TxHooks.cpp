@@ -36,7 +36,7 @@ using namespace std;
 
 //#define USE_BACKTRACE
 #define USE_TX
-//#define USE_TX_STATS
+#define USE_TX_STATS
 //#define USE_TX_STATS_MEM
 #define USE_TSAN_CRT
 //#define USE_SAMPLING
