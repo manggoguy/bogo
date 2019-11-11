@@ -1804,7 +1804,9 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     Instruction *after_bnd = GetNextInstruction(bndldx);
     CallInst::Create(TxHookExit, "", after_bnd);
     ilist.push_back(bndldx);
-    bndldx->eraseFromParent; //for debug, after debug erase it
+
+    CallInst *ci = dyn_cast<CallInst>(bndldx);
+    ci->eraseFromParent; //for debug, after debug erase it
     //bndldxlist.push_back(bndldx); //after debug erase "//"
 
     return ilist;
@@ -1944,7 +1946,9 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     ilist.push_back(bndstx);
 
     insert_dbg_dump_bndldstx(bndstx, addr, false);
-    bndstx->eraseFromParent; //for debug, after debug erase it
+    
+    CallInst *ci = dyn_cast<CallInst>(bndstx);
+    ci->eraseFromParent; //for debug, after debug erase it
     //bndstxlist.push_back(bndstx); //for debug, erase "//"
 
     return ilist;
