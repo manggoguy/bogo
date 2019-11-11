@@ -593,7 +593,8 @@ retry_tx:
 		 * transaction.
 		 */
 		if (unlikely((pv & PV_MASK_FAST_PATH) != PV_FAST_PATH))
-		{
+		{	
+			printf("I think this is the proble\n");
 			//_xabort(0xEE);
 			_xabort(0x00);
 		}
