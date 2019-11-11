@@ -3135,7 +3135,7 @@ void llmpx::transform_global(Module &module)
         BasicBlock &mbb = mainfunc->getEntryBlock();
         IRBuilder<> builder0(dyn_cast<Instruction>(mbb.getFirstInsertionPt()));
         builder0.CreateCall(llmpx_ctor);
-        builder0.CreateCall(TxHookInit)
+        builder0.CreateCall(TxHookInit);
     }
 #endif
 
