@@ -501,9 +501,9 @@ private:
          * all inserted bndstx is recorded here
          */
     std::list<Value *> bndstxlist;
-
-    std::map<Value *, Value * > bndtoTxenter;
-    std::map<Value *, Value * > bndtoTxend;
+    
+    ValueMap<Value *, Value * > bndtoTxenter;
+    ValueMap<Value *, Value * > bndtoTxend;
     /*
          * insert key store for ptr and key after Instruction I
          */
