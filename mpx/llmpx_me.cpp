@@ -3734,6 +3734,8 @@ int llmpx::dead_bndstx_elimination(Module &module)
         Value* txend = bndtoTxenter[i];
         CallInst *endci = dyn_cast<CallInst>(txenter);
         endci->eraseFromParent();
+
+        bndtoTxenter.erase(i);
         ci->eraseFromParent();
         bndstxlist.remove(ci);
     }
