@@ -3728,9 +3728,9 @@ int llmpx::dead_bndstx_elimination(Module &module)
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
 #endif
-        Instruction* txenter = bndtoTxenter.find(ci);
+        Instruction* txenter = bndtoTxenter[ci];
         txenter->eraseFromParent();
-        Instruction* txend = bndtoTxend.find(ci);
+        Instruction* txend = bndtoTxend[ci];
         txend->eraseFromParent();
         ci->eraseFromParent();
         bndstxlist.remove(ci);
