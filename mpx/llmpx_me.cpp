@@ -502,8 +502,8 @@ private:
          */
     std::list<Value *> bndstxlist;
 
-    std::map<Instruction *, Instruction * > bndtoTxenter;
-    std::map<Instruction *, Instruction * > bndtoTxend;
+    std::map<Value *, Value * > bndtoTxenter;
+    std::map<Value *, Value * > bndtoTxend;
     /*
          * insert key store for ptr and key after Instruction I
          */
@@ -3728,11 +3728,12 @@ int llmpx::dead_bndstx_elimination(Module &module)
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
 #endif
-        Instruction* inst =dyn_cast<Instruction>(i);
-        Instruction* txenter = bndtoTxenter[inst];
-        txenter->eraseFromParent();
-        Instruction* txend = bndtoTxend[inst];
-        txend->eraseFromParent();
+        Value* txenter = bndtoTxenter[i];
+        CallInst *enterci = dyn_cast<CallInst>(txenter);
+        enterci->eraseFromParent();
+        Value* txend = bndtoTxenter[i];
+        CallInst *endci = dyn_cast<CallInst>(txenter);
+        endci->eraseFromParent();
         ci->eraseFromParent();
         bndstxlist.remove(ci);
     }
