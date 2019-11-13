@@ -1949,8 +1949,8 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
     Instruction *txexit = CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
     ilist.push_back(bndstx);
-    bndtoTxenter.insert(bndstx, txexit);
-    bndtoTxend.insert(bndstx, txexit);
+    bndtoTxenter.insert(std::pair<Value *, Value *>(bndstx, txenter));
+    bndtoTxend.insert(std::pair<Value *, Value *>(bndstx, txenter));
     insert_dbg_dump_bndldstx(bndstx, addr, false);
     
     
