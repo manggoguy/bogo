@@ -501,6 +501,9 @@ private:
          * all inserted bndstx is recorded here
          */
     std::list<Value *> bndstxlist;
+
+    std::map<Instruction *, Instruction * > bndtoTxenter;
+    std::map<Instruction *, Instruction * > bndtoTxend;
     /*
          * insert key store for ptr and key after Instruction I
          */
@@ -1940,16 +1943,18 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
-    CallInst::Create(TxHookEnter, "", before);
-    Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
-    CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
-    ilist.push_back(bndstx);
+    Instruction *txenter = CallInst::Create(TxHookEnter, "", before);
 
+
+    Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
+    Instruction *txexit = CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
+    ilist.push_back(bndstx);
+    bndtoTxenter.insert(bndstx, txexit);
+    bndtoTxend.insert(bndstx, txexit);
     insert_dbg_dump_bndldstx(bndstx, addr, false);
     
-    // CallInst *ci = dyn_cast<CallInst>(bndstx);
-    // ci->eraseFromParent; //for debug, after debug erase it
-    bndstxlist.push_back(bndstx); //for debug, erase "//"
+    
+    bndstxlist.push_back(bndstx); 
 
     return ilist;
 }
@@ -3723,6 +3728,10 @@ int llmpx::dead_bndstx_elimination(Module &module)
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
 #endif
+        Instruction* txenter = bndtoTxenter.find(ci);
+        txenter->eraseFromParent();
+        Instruction* txend = bndtoTxend.find(ci);
+        txend->eraseFromParent();
         ci->eraseFromParent();
         bndstxlist.remove(ci);
     }
