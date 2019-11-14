@@ -1747,7 +1747,11 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
     Instruction *after_bnd = GetNextInstruction(bndldx);
-    CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
+    CallInst* unlock = CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
+
+    bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
+    bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
+
     ilist.push_back(bndldx);
 
     bndldxlist.push_back(bndldx);
