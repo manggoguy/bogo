@@ -1668,7 +1668,7 @@ end:
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
-    CallInst::Create(wrapper_mutex_lock, "", I);
+    Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", I);
     I = GetNextInstruction(I);
     TotalBNDLDXAdded++;
 
@@ -1749,8 +1749,8 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     Instruction *after_bnd = GetNextInstruction(bndldx);
     CallInst* unlock = CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
 
-    bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
-    bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
+    bndtolock.insert(std::pair<Value *, Value *>(bndldx, lock));
+    bndtounlock.insert(std::pair<Value *, Value *>(bndldx, unlock));
 
     ilist.push_back(bndldx);
 
@@ -3793,6 +3793,14 @@ int llmpx::dead_bndldx_elimination(Module &module)
             Instruction *i = dyn_cast<Instruction>(user);
             i->eraseFromParent();
         }
+        Value* lock = bndtolock[i];
+        Value* unlock = bndtounlock[i];
+        
+        CallInst* ciLock = dyn_cast<CallInst>(i);
+        CallInst* ciUnLock = dyn_cast<CallInst>(i);
+        ciLock->eraseFromParent();
+        ciUnLock->eraseFromParent();
+
         ci->eraseFromParent();
         bndldxlist.remove(ci);
     }
