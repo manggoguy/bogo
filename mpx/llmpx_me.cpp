@@ -503,7 +503,7 @@ private:
     std::list<Value *> bndstxlist;
     
     ValueMap<Value *, Value * > bndtoTxenter;
-    ValueMap<Value *, Value * > bndtoTxend;
+    ValueMap<Value *, Value * > bndtoTxexit;
     /*
          * insert key store for ptr and key after Instruction I
          */
@@ -1807,8 +1807,8 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     Instruction *after_bnd = GetNextInstruction(bndldx);
     CallInst* txExit= CallInst::Create(TxHookExit, "", after_bnd);
 
-    bndtolock.insert(std::pair<Value *, Value *>(bndldx, txEnter));
-    bndtounlock.insert(std::pair<Value *, Value *>(bndldx, txExit));
+    bndtoTxenter.insert(std::pair<Value *, Value *>(bndldx, txEnter));
+    bndtoTxexit.insert(std::pair<Value *, Value *>(bndldx, txExit));
 
     ilist.push_back(bndldx);
 
@@ -1954,7 +1954,7 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     Instruction *txExit = CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
     ilist.push_back(bndstx);
     bndtoTxenter.insert(std::pair<Value *, Value *>(bndstx, txEnter));
-    bndtoTxend.insert(std::pair<Value *, Value *>(bndstx, txEnter));
+    bndtoTxexit.insert(std::pair<Value *, Value *>(bndstx, txEnter));
     
     insert_dbg_dump_bndldstx(bndstx, addr, false);
     
@@ -3857,7 +3857,7 @@ int llmpx::dead_bndldx_elimination(Module &module)
             i->eraseFromParent();
         }
         Value* txExit = bndtoTxenter[i];
-        Value* txEnter = bndtoTxexit[i];
+        Value* txEnter = bndtoTxexit [i];
         
         CallInst* ciTxEnter = dyn_cast<CallInst>(txEnter);
         CallInst* ciTxExit = dyn_cast<CallInst>(txExit);
