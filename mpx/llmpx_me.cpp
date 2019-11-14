@@ -1726,7 +1726,7 @@ end:
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
-    CallInst::Create(TxHookEnter, "", I);
+    CallInst* txEnter = CallInst::Create(TxHookEnter, "", I);
     I = GetNextInstruction(I);
     TotalBNDLDXAdded++;
 
@@ -1805,7 +1805,11 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
     Instruction *after_bnd = GetNextInstruction(bndldx);
-    CallInst::Create(TxHookExit, "", after_bnd);
+    CallInst* txExit= CallInst::Create(TxHookExit, "", after_bnd);
+
+    bndtolock.insert(std::pair<Value *, Value *>(bndldx, txEnter));
+    bndtounlock.insert(std::pair<Value *, Value *>(bndldx, txExit));
+
     ilist.push_back(bndldx);
 
     // CallInst *ci = dyn_cast<CallInst>(bndldx);
@@ -1943,14 +1947,15 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
-    Instruction *txenter = CallInst::Create(TxHookEnter, "", before);
+    Instruction *txEnter = CallInst::Create(TxHookEnter, "", before);
 
 
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
-    Instruction *txexit = CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
+    Instruction *txExit = CallInst::Create(TxHookExit, "", GetNextInstruction(bndstx));
     ilist.push_back(bndstx);
-    bndtoTxenter.insert(std::pair<Value *, Value *>(bndstx, txenter));
-    bndtoTxend.insert(std::pair<Value *, Value *>(bndstx, txenter));
+    bndtoTxenter.insert(std::pair<Value *, Value *>(bndstx, txEnter));
+    bndtoTxend.insert(std::pair<Value *, Value *>(bndstx, txEnter));
+    
     insert_dbg_dump_bndldstx(bndstx, addr, false);
     
     
@@ -3851,6 +3856,13 @@ int llmpx::dead_bndldx_elimination(Module &module)
             Instruction *i = dyn_cast<Instruction>(user);
             i->eraseFromParent();
         }
+        Value* txExit = bndtoTxenter[i];
+        Value* txEnter = bndtoTxexit[i];
+        
+        CallInst* ciTxEnter = dyn_cast<CallInst>(txEnter);
+        CallInst* ciTxExit = dyn_cast<CallInst>(txExit);
+        ciTxEnter->eraseFromParent();
+        ciTxExit->eraseFromParent();
         ci->eraseFromParent();
         bndldxlist.remove(ci);
     }
