@@ -490,6 +490,9 @@ private:
          * all inserted bndstx is recorded here
          */
     std::list<Value *> bndstxlist;
+
+    ValueMap<Value *, Value * > bndtolock;
+    ValueMap<Value *, Value * > bndtounlock;
     /*
          * insert key store for ptr and key after Instruction I
          */
@@ -1880,10 +1883,13 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
-    CallInst::Create(wrapper_mutex_lock, "", before);
+    Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", before);
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
-    CallInst::Create(wrapper_mutex_unlock, "", GetNextInstruction(bndstx));
+    Instruction* unlock = CallInst::Create(wrapper_mutex_unlock, "", GetNextInstruction(bndstx));
     ilist.push_back(bndstx);
+
+    bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
+    bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
 
     insert_dbg_dump_bndldstx(bndstx, addr, false);
 
@@ -3658,8 +3664,18 @@ int llmpx::dead_bndstx_elimination(Module &module)
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
 #endif
+
+        Value* lock = bndtolock[i];
+        Value* unlock = bndtounlock[i];
+        
+        CallInst* ciLock = dyn_cast<CallInst>(i);
+        CallInst* ciUnLock = dyn_cast<CallInst>(i);
+        ciLock->eraseFromParent();
+        ciUnLock->eraseFromParent();
         ci->eraseFromParent();
         bndstxlist.remove(ci);
+        bndtolock.erase(i);
+        bndtounlock.erase(i);
     }
 #if DEBUG_DEAD_BNDSTX_ELIM
     errs() << cnt << " bndstx removed\n";
