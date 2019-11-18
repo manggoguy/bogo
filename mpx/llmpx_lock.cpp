@@ -4228,6 +4228,7 @@ void llmpx::verify(Module &module)
             for (BasicBlock::iterator ins = blk->begin(), inse = blk->end(); ins != inse; ++ins)
             {
                 Instruction *iii = dyn_cast<Instruction>(ins);
+                
                 for (unsigned i = 0, e = iii->getNumOperands(); i != e; ++i)
                 {
                     if (!isa<Instruction>(iii->getOperand(i)))
