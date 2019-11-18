@@ -4195,14 +4195,12 @@ int llmpx::remove_dead_bound(Module &module)
 void llmpx::verify(Module &module)
 {
     errs() << "  check bogus instruction parent ";
-    for (Module::iterator fi = module.begin(), fe = module.end();
-         fi != fe; ++fi)
-    {
+    for (Function &func: module){
+    
         errs() << "Module";
-        Function *func = dyn_cast<Function>(fi);
-        for (BasicBlock &BB: *func)
+        for (BasicBlock &BB: func)
         {
-            errs() << "Function: "<< *func <<"\n";
+            errs() << "Function: "<< func <<"\n";
 //            BasicBlock *blk = dyn_cast<BasicBlock>(i);
             for (BasicBlock::iterator ins = BB.begin(), inse = BB.end(); ins != inse; ++ins)
             {
