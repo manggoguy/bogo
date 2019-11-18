@@ -4202,7 +4202,7 @@ void llmpx::verify(Module &module)
         Function *func = dyn_cast<Function>(fi);
         for (BasicBlock &BB: *func)
         {
-            errs() << "Function";
+            errs() << "Function: "<< *func <<"\n";
 //            BasicBlock *blk = dyn_cast<BasicBlock>(i);
             for (BasicBlock::iterator ins = BB.begin(), inse = BB.end(); ins != inse; ++ins)
             {
