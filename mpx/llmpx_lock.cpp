@@ -4194,20 +4194,14 @@ int llmpx::remove_dead_bound(Module &module)
 
 void llmpx::verify(Module &module)
 {
-    errs() << "  check bogus instruction parent ";
     //module.getFunctionList().getNextNode();
     for (Function &func: module){
-    
-        errs() << "Module";
         for (BasicBlock &BB: func)
         {
-            errs() << "Function: "<< func <<"\n";
 //            BasicBlock *blk = dyn_cast<BasicBlock>(i);
             for (BasicBlock::iterator ins = BB.begin(), inse = BB.end(); ins != inse; ++ins)
             {
-                errs() << "Basic";
                 Instruction *iii = dyn_cast<Instruction>(ins);
-                errs() << "Success: "<< *iii;
                 if (iii->getParent() != &BB)
                 {
                     errs() << "[" << ANSI_COLOR_RED << "BAD" << ANSI_COLOR_RESET << "]\n";
@@ -4215,7 +4209,6 @@ void llmpx::verify(Module &module)
                     errs() << "\n";
                     llvm_unreachable("Instruction has bogus parent pointer!");
                 }
-                errs() << "End\n";
             }
         }
     }
