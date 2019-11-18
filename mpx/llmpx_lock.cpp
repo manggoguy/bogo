@@ -4208,7 +4208,7 @@ void llmpx::verify(Module &module)
             {
                 errs() << "Basic";
                 Instruction *iii = dyn_cast<Instruction>(ins);
-                errs() << "Success";
+                errs() << "Success: "<< *iii;
                 if (iii->getParent() != blk)
                 {
                     errs() << "[" << ANSI_COLOR_RED << "BAD" << ANSI_COLOR_RESET << "]\n";
