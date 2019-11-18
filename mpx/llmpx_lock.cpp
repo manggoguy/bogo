@@ -4200,7 +4200,7 @@ void llmpx::verify(Module &module)
     {
         errs() << "Module";
         Function *func = dyn_cast<Function>(fi);
-        for (BasicBlock &BB: func)
+        for (BasicBlock &BB: *func)
         {
             errs() << "Function";
 //            BasicBlock *blk = dyn_cast<BasicBlock>(i);
