@@ -88,7 +88,7 @@ using namespace llvm;
 
 #define DEBUG_PROCESS_INST 0
 
-#define DEBUG_WRAPPER_PROCESSOR 0
+#define DEBUG_WRAPPER_PROCESSOR 1
 
 /*
  * bb level bound check consolidation
