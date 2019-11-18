@@ -4196,12 +4196,8 @@ void llmpx::verify(Module &module)
 {
     errs() << "  check bogus instruction parent ";
     //module.getFunctionList().getNextNode();
-    Function * func;
-    Module::iterator fi= module.begin();
-    Module::iterator fe= module.end();
-    Function *fend = dyn_cast<Function>(fe);
-    SymbolTableList<Function> flist= module.getFunctionList();
-   for (func = dyn_cast<Function>(fi); fi!=fe ; func = flist.getNextNode(func)){
+    for (Function &func: module){
+    
         errs() << "Module";
         for (BasicBlock &BB: func)
         {
