@@ -4200,7 +4200,8 @@ void llmpx::verify(Module &module)
     {
         errs() << "Module";
         Function *func = dyn_cast<Function>(fi);
-        for (BasicBlock &BB: *func)
+        for (BasicBlock &BB: *
+        func)
         {
             errs() << "Function";
 //            BasicBlock *blk = dyn_cast<BasicBlock>(i);
@@ -4209,7 +4210,7 @@ void llmpx::verify(Module &module)
                 errs() << "Basic";
                 Instruction *iii = dyn_cast<Instruction>(ins);
                 errs() << "Success: "<< *iii;
-                if (iii->getParent() != blk)
+                if (iii->getParent() != BB)
                 {
                     errs() << "[" << ANSI_COLOR_RED << "BAD" << ANSI_COLOR_RESET << "]\n";
                     iii->print(errs());
