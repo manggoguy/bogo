@@ -4216,6 +4216,7 @@ void llmpx::verify(Module &module)
                     errs() << "\n";
                     llvm_unreachable("Instruction has bogus parent pointer!");
                 }
+                errs() << "End\n";
             }
         }
     }
