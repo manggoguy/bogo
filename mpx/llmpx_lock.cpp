@@ -4195,8 +4195,13 @@ int llmpx::remove_dead_bound(Module &module)
 void llmpx::verify(Module &module)
 {
     errs() << "  check bogus instruction parent ";
-    for (Function &func: module){
-    
+    //module.getFunctionList().getNextNode();
+    Function * func;
+    Module::iterator fi= module.begin();
+    Module::iterator fe= module.end();
+    Function *fend = dyn_cast<Function>(fe);
+    SymbolTableList<Function> flist= module.getFunctionList();
+   for (func = dyn_cast<Function>(fi); fi!=fe ; func = flist.getNextNode(func)){
         errs() << "Module";
         for (BasicBlock &BB: func)
         {
