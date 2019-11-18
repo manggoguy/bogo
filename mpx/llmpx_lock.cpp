@@ -4200,11 +4200,11 @@ void llmpx::verify(Module &module)
     {
         errs() << "Module";
         Function *func = dyn_cast<Function>(fi);
-        for (Function::iterator i = func->begin(), e = func->end(); i != e; ++i)
+        for (BasicBlock &BB: func)
         {
             errs() << "Function";
-            BasicBlock *blk = dyn_cast<BasicBlock>(i);
-            for (BasicBlock::iterator ins = blk->begin(), inse = blk->end(); ins != inse; ++ins)
+//            BasicBlock *blk = dyn_cast<BasicBlock>(i);
+            for (BasicBlock::iterator ins = BB.begin(), inse = BB.end(); ins != inse; ++ins)
             {
                 errs() << "Basic";
                 Instruction *iii = dyn_cast<Instruction>(ins);
