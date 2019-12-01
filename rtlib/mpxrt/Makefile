@@ -2,7 +2,7 @@
 CFLAGS= -fPIC -g -Ofast -march=native
 LDFLAGS=-Wl,--version-script=libmpx.map -lpthread
 
-CC=/opt/toolchain/gcc/bin/gcc
+CC=gcc
 
 all: dynamic static
 
