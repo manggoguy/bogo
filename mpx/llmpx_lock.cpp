@@ -16,9 +16,10 @@
  */
 
 #include "llvm/Transforms/Instrumentation.h"
-
+#include "MTA/MTA.h"
+#include "Util/AnalysisUtil.h"
 #include "llvm/ADT/Statistic.h"
-
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Pass.h"
 
 #include "llvm/Analysis/MemoryBuiltins.h"
@@ -183,6 +184,7 @@ STATISTIC(ConsolidatedBNDCHK, "Total bound checks consolidated");
 class llmpx : public ModulePass
 {
 private:
+    void runOnMTA(Module &);
     bool runOnModule(Module &);
     bool mpxPass(Module &);
 
@@ -1399,9 +1401,29 @@ void llmpx::create_global_constants(Module &module)
 /*
  * stub function
  */
+void llmpx::runOnMTA(Module &module){
+    llvm::legacy::PassManager Passes;
+
+    PassRegistry &Registry = *PassRegistry::getPassRegistry();
+
+    initializeCore(Registry);
+    initializeScalarOpts(Registry);
+    initializeIPO(Registry);
+    initializeAnalysis(Registry);
+    initializeTransformUtils(Registry);
+    initializeInstCombine(Registry);
+    initializeInstrumentation(Registry);
+    initializeTarget(Registry);
+
+    SVFModule svfModule(module);
+
+    MTA* mta = new MTA();
+    mta->runOnModule(svfModule);
+}
+
 bool llmpx::runOnModule(Module &module)
 {
-    errs() << "runOnModule\n";
+    runOnMTA(module);
     this->module = &module;
     ctx = &module.getContext();
     //prepare global constant bound
@@ -4194,15 +4216,18 @@ int llmpx::remove_dead_bound(Module &module)
 
 void llmpx::verify(Module &module)
 {
-    //module.getFunctionList().getNextNode();
-    for (Function &func: module){
-        for (BasicBlock &BB: func)
+    errs() << "  check bogus instruction parent ";
+    for (Module::iterator fi = module.begin(), fe = module.end();
+         fi != fe; ++fi)
+    {
+        Function *func = dyn_cast<Function>(fi);
+        for (Function::iterator i = func->begin(), e = func->end(); i != e; ++i)
         {
-//            BasicBlock *blk = dyn_cast<BasicBlock>(i);
-            for (BasicBlock::iterator ins = BB.begin(), inse = BB.end(); ins != inse; ++ins)
+            BasicBlock *blk = dyn_cast<BasicBlock>(i);
+            for (BasicBlock::iterator ins = blk->begin(), inse = blk->end(); ins != inse; ++ins)
             {
                 Instruction *iii = dyn_cast<Instruction>(ins);
-                if (iii->getParent() != &BB)
+                if (iii->getParent() != blk)
                 {
                     errs() << "[" << ANSI_COLOR_RED << "BAD" << ANSI_COLOR_RESET << "]\n";
                     iii->print(errs());
