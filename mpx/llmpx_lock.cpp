@@ -1403,7 +1403,7 @@ void llmpx::create_global_constants(Module &module)
  */
 void llmpx::runOnMTA(Module &module){
     llvm::legacy::PassManager Passes;
-
+    errs() <<"Run On MTA\n";
     PassRegistry &Registry = *PassRegistry::getPassRegistry();
 
     initializeCore(Registry);
