@@ -231,6 +231,8 @@ private:
          */
     void create_llmpx_symbols(Module &);
 
+    bool may_happen_parallell(Instruction *I);
+
     /*
          * a list for llvm mpx symbols
          */
@@ -477,6 +479,7 @@ private:
          * all inserted bndldx is recorded here
          */
     std::list<Value *> bndldxlist;
+    std::set<const Instruction *> mustcheklist;
     /*
          * insert key load for ptr before Instruction I
          */
@@ -1403,7 +1406,6 @@ void llmpx::create_global_constants(Module &module)
  */
 void llmpx::runOnMTA(Module &module){
     llvm::legacy::PassManager Passes;
-    errs() <<"Run On MTA\n";
     PassRegistry &Registry = *PassRegistry::getPassRegistry();
 
     initializeCore(Registry);
@@ -1420,8 +1422,7 @@ void llmpx::runOnMTA(Module &module){
     MTA* mta = new MTA();
     Passes.add(mta);
     Passes.run(*svfModule.getMainLLVMModule());
-
-    errs() <<"Run On MTA\n";
+    mustcheklist.merge(mta->getCheckList());
 }
 
 bool llmpx::runOnModule(Module &module)
@@ -1690,10 +1691,18 @@ end:
 /*
  * insert bndldx ptr before Instruction I
  */
+bool llmpx::may_happen_parallell(Instruction *I){
+    const bool is_in = mustcheklist.find(I) != mustcheklist.end();
+    return is_in;
+}
+
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
-    Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", I);
+    const bool is_parallell = may_happen_parallell(I);
+    Instruction* lock;
+    if(is_parallell)
+        lock = CallInst::Create(wrapper_mutex_lock, "", I);
     I = GetNextInstruction(I);
     TotalBNDLDXAdded++;
 
@@ -1772,11 +1781,11 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
     Instruction *after_bnd = GetNextInstruction(bndldx);
-    CallInst* unlock = CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
-
-    bndtolock.insert(std::pair<Value *, Value *>(bndldx, lock));
-    bndtounlock.insert(std::pair<Value *, Value *>(bndldx, unlock));
-
+    if(is_parallell){
+        CallInst* unlock = CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
+        bndtolock.insert(std::pair<Value *, Value *>(bndldx, lock));
+        bndtounlock.insert(std::pair<Value *, Value *>(bndldx, unlock));
+    }   
     ilist.push_back(bndldx);
 
     bndldxlist.push_back(bndldx);
@@ -1822,7 +1831,7 @@ llmpx::insert_key_load(Instruction *I, Value *ptr)
 std::list<Value *>
 llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 {
-
+    const bool is_parallell = may_happen_parallell(I);
 #if 0
     errs()<<" insert_bound_store:\n";
     errs()<<"   I - ";
@@ -1912,14 +1921,16 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 
 
     //insert TxBegin and TxEnd
-    Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", before);
+
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
-    Instruction* unlock = CallInst::Create(wrapper_mutex_unlock, "", GetNextInstruction(bndstx));
+    
     ilist.push_back(bndstx);
-
-    bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
-    bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
-
+    if(is_parallell){
+        Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", before);
+        Instruction* unlock = CallInst::Create(wrapper_mutex_unlock, "", GetNextInstruction(bndstx));
+        bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
+        bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
+    }
     insert_dbg_dump_bndldstx(bndstx, addr, false);
 
     bndstxlist.push_back(bndstx);
@@ -3692,19 +3703,22 @@ int llmpx::dead_bndstx_elimination(Module &module)
         CallInst *ci = dyn_cast<CallInst>(i);
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
-#endif
-
-        Value* lock = bndtolock[i];
-        Value* unlock = bndtounlock[i];
-        
-        CallInst* ciLock = dyn_cast<CallInst>(i);
-        CallInst* ciUnLock = dyn_cast<CallInst>(i);
-        ciLock->eraseFromParent();
-        ciUnLock->eraseFromParent();
-        ci->eraseFromParent();
-        bndstxlist.remove(ci);
+#endif  
+        llvm::ValueMapIterator it = bndtolock.find(i);
+        if (it != bndtolock.end()){
+            Value* lock = bndtolock[i];
+            Value* unlock = bndtounlock[i];
+            
+            CallInst* ciLock = dyn_cast<CallInst>(i);
+            CallInst* ciUnLock = dyn_cast<CallInst>(i);
+            ciLock->eraseFromParent();
+            ciUnLock->eraseFromParent();
+        }
         bndtolock.erase(i);
         bndtounlock.erase(i);
+
+        ci->eraseFromParent();
+        bndstxlist.remove(ci);
     }
 #if DEBUG_DEAD_BNDSTX_ELIM
     errs() << cnt << " bndstx removed\n";
@@ -3818,14 +3832,17 @@ int llmpx::dead_bndldx_elimination(Module &module)
             Instruction *i = dyn_cast<Instruction>(user);
             i->eraseFromParent();
         }
-        Value* lock = bndtolock[i];
-        Value* unlock = bndtounlock[i];
-        
-        CallInst* ciLock = dyn_cast<CallInst>(i);
-        CallInst* ciUnLock = dyn_cast<CallInst>(i);
-        ciLock->eraseFromParent();
-        ciUnLock->eraseFromParent();
 
+        llvm::ValueMapIterator it = bndtolock.find(i);
+        if(it !=bndtolock.end()){
+            Value* lock = bndtolock[i];
+            Value* unlock = bndtounlock[i];
+            
+            CallInst* ciLock = dyn_cast<CallInst>(i);
+            CallInst* ciUnLock = dyn_cast<CallInst>(i);
+            ciLock->eraseFromParent();
+            ciUnLock->eraseFromParent();
+        }
         ci->eraseFromParent();
         bndldxlist.remove(ci);
     }
