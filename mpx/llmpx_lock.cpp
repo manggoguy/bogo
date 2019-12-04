@@ -1418,6 +1418,7 @@ void llmpx::runOnMTA(Module &module){
     SVFModule svfModule(module);
 
     MTA* mta = new MTA();
+    errs() <<"Run On MTA\n";
     mta->runOnModule(svfModule);
 }
 
