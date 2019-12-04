@@ -1416,7 +1416,6 @@ void llmpx::runOnMTA(Module &module){
     initializeTarget(Registry);
 
     SVFModule svfModule(module);
-    svfModule.
 
     MTA* mta = new MTA();
     Passes.add(mta);
