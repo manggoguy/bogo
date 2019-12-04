@@ -1416,10 +1416,13 @@ void llmpx::runOnMTA(Module &module){
     initializeTarget(Registry);
 
     SVFModule svfModule(module);
+    svfModule.
 
     MTA* mta = new MTA();
+    Passes.add(mta);
+    Passes.run(*svfModule.getMainLLVMModule());
+
     errs() <<"Run On MTA\n";
-    mta->runOnModule(svfModule);
 }
 
 bool llmpx::runOnModule(Module &module)
