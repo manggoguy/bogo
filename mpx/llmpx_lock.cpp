@@ -1401,30 +1401,30 @@ void llmpx::create_global_constants(Module &module)
 /*
  * stub function
  */
-void llmpx::runOnMTA(Module &module){
-    llvm::legacy::PassManager Passes;
-    errs() <<"Run On MTA\n";
-    PassRegistry &Registry = *PassRegistry::getPassRegistry();
+// void llmpx::runOnMTA(Module &module){
+//     llvm::legacy::PassManager Passes;
+//     errs() <<"Run On MTA\n";
+//     PassRegistry &Registry = *PassRegistry::getPassRegistry();
 
-    initializeCore(Registry);
-    initializeScalarOpts(Registry);
-    initializeIPO(Registry);
-    initializeAnalysis(Registry);
-    initializeTransformUtils(Registry);
-    initializeInstCombine(Registry);
-    initializeInstrumentation(Registry);
-    initializeTarget(Registry);
+//     initializeCore(Registry);
+//     initializeScalarOpts(Registry);
+//     initializeIPO(Registry);
+//     initializeAnalysis(Registry);
+//     initializeTransformUtils(Registry);
+//     initializeInstCombine(Registry);
+//     initializeInstrumentation(Registry);
+//     initializeTarget(Registry);
 
-    SVFModule svfModule(module);
+//     SVFModule svfModule(module);
 
-    MTA* mta = new MTA();
-    errs() <<"Run On MTA\n";
-    mta->runOnModule(svfModule);
-}
+//     MTA* mta = new MTA();
+//     errs() <<"Run On MTA\n";
+//     mta->runOnModule(svfModule);
+// }
 
 bool llmpx::runOnModule(Module &module)
 {
-    runOnMTA(module);
+    //runOnMTA(module);
     this->module = &module;
     ctx = &module.getContext();
     //prepare global constant bound
