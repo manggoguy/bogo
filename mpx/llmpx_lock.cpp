@@ -3706,8 +3706,8 @@ int llmpx::dead_bndstx_elimination(Module &module)
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
 #endif  
-        llvm::ValueMapIterator<llvm::ValueMap, Value*> it = bndtolock.find(i);
-        if (it != bndtolock.end()){
+        
+        if (bndtolock.find(i) != bndtolock.end()){
             Value* lock = bndtolock[i];
             Value* unlock = bndtounlock[i];
             
