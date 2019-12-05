@@ -1422,7 +1422,8 @@ void llmpx::runOnMTA(Module &module){
     MTA* mta = new MTA();
     Passes.add(mta);
     Passes.run(*svfModule.getMainLLVMModule());
-    mustcheklist.merge(mta->getCheckList());
+    
+    mustcheklist = mta->makeCheckList(svfModule);
 }
 
 bool llmpx::runOnModule(Module &module)
