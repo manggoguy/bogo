@@ -1,16 +1,39 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.4.3)
 
-find_package(LLVM REQUIRED CONFIG)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+# To support both in- and out-of-source builds,
+# we check for the presence of the add_llvm_loadable_module command.
+# - if this command is not present, we are building out-of-source
+if(NOT COMMAND add_llvm_loadable_module)
+    if (DEFINED ENV{LLVM_DIR})
+        # We need to match the build environment for LLVM:
+        # In particular, we need C++11 and the -fno-rtti flag
+        set(CMAKE_CXX_STANDARD 11)
+	if(CMAKE_BUILD_TYPE MATCHES "Debug")
+		set(CMAKE_CXX_FLAGS "-std=gnu++11 -O0 -fno-rtti -lstdc++ -fno-pie -no-pie")
+	else()
+		set(CMAKE_CXX_FLAGS "-std=gnu++11 -O3 -fno-rtti -lstdc++ -fno-pie -no-pie")
+	endif()
+    
+	find_package(LLVM REQUIRED CONFIG)
 
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)        
+        list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+        include(AddLLVM)
 
-add_definitions(${LLVM_DEFINITIONS})
-include_directories(${LLVM_INCLUDE_DIRS})
+        add_definitions(${LLVM_DEFINITIONS})
+        include_directories(${LLVM_INCLUDE_DIRS})
+
+    else()
+        message(FATAL_ERROR "\
+WARNING: The LLVM_DIR var was not set (required for an out-of-source build)!\n\
+Please set this to environment variable to point to the LLVM build directory\
+(e.g. on linux: export LLVM_DIR=/path/to/llvm/build/dir)")
+    endif()
+else()
+        set(IN_SOURCE_BUILD 1)
+endif()
+
 
 add_subdirectory(mpx)
-add_subdirectory(lock)
-list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
-include(AddLLVM)
+
 
