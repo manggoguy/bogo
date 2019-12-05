@@ -3835,8 +3835,7 @@ int llmpx::dead_bndldx_elimination(Module &module)
             i->eraseFromParent();
         }
 
-        llvm::ValueMapIterator it = bndtolock.find(i);
-        if(it !=bndtolock.end()){
+        if(bndtolock.find(i) !=bndtolock.end()){
             Value* lock = bndtolock[i];
             Value* unlock = bndtounlock[i];
             
