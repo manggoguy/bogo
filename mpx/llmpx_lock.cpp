@@ -46,6 +46,7 @@
 #include "llvm/IR/CFG.h"
 #include "llvm/IR/Use.h"
 #include "llvm/IR/ValueMap.h"
+#include "llvm/ADT/DenseMap.h"
 #include "llvm/IR/Dominators.h"
 
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
@@ -3705,7 +3706,7 @@ int llmpx::dead_bndstx_elimination(Module &module)
 #if (DEBUG_DEAD_BNDSTX_ELIM > 2)
         ci->dump();
 #endif  
-        llvm::ValueMapIterator it = bndtolock.find(i);
+        llvm::ValueMapIterator<llvm::DenseMap, Value*> it = bndtolock.find(i);
         if (it != bndtolock.end()){
             Value* lock = bndtolock[i];
             Value* unlock = bndtounlock[i];
