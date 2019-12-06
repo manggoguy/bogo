@@ -9,6 +9,7 @@ target_compile_features(llmpx_me PRIVATE cxx_range_for cxx_auto_type)
 #llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombine instrumentation target linker analysis scalaropts support)
 
 message(STATUS "LLVM_LIBS: ${llvm_libs}")
+include_directories(/home/mok/project/SVF_/include)
 link_directories(/home/mok/project/SVF_/build/lib
     /home/mok/project/SVF_/build/lib/CUDD
     )
