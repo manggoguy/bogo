@@ -231,8 +231,6 @@ private:
          */
     void create_llmpx_symbols(Module &);
 
-    bool may_happen_parallell(Instruction *I);
-
     /*
          * a list for llvm mpx symbols
          */
@@ -1674,10 +1672,8 @@ end:
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
 {
-    const bool is_parallell = may_happen_parallell(I);
     Instruction* lock;
-    if(is_parallell)
-        lock = CallInst::Create(wrapper_mutex_lock, "", I);
+    lock = CallInst::Create(wrapper_mutex_lock, "", I);
     I = GetNextInstruction(I);
     TotalBNDLDXAdded++;
 
@@ -1756,11 +1752,11 @@ llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
     //add TxBegin and TxEnd
     Instruction *bndldx = CallInst::Create(mpx_bndldx, args, "", I);
     Instruction *after_bnd = GetNextInstruction(bndldx);
-    if(is_parallell){
-        CallInst* unlock = CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
-        bndtolock.insert(std::pair<Value *, Value *>(bndldx, lock));
-        bndtounlock.insert(std::pair<Value *, Value *>(bndldx, unlock));
-    }   
+  
+    CallInst* unlock = CallInst::Create(wrapper_mutex_unlock, "", after_bnd);
+    bndtolock.insert(std::pair<Value *, Value *>(bndldx, lock));
+    bndtounlock.insert(std::pair<Value *, Value *>(bndldx, unlock));
+       
     ilist.push_back(bndldx);
 
     bndldxlist.push_back(bndldx);
@@ -1806,7 +1802,6 @@ llmpx::insert_key_load(Instruction *I, Value *ptr)
 std::list<Value *>
 llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
 {
-    const bool is_parallell = may_happen_parallell(I);
 #if 0
     errs()<<" insert_bound_store:\n";
     errs()<<"   I - ";
@@ -1900,12 +1895,12 @@ llmpx::insert_bound_store(Instruction *I, Value *ptr, Value *ptrval, Value *bnd)
     Instruction *bndstx = CallInst::Create(mpx_bndstx, args, "", insertPoint);
     
     ilist.push_back(bndstx);
-    if(is_parallell){
-        Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", before);
-        Instruction* unlock = CallInst::Create(wrapper_mutex_unlock, "", GetNextInstruction(bndstx));
-        bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
-        bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
-    }
+
+    Instruction* lock = CallInst::Create(wrapper_mutex_lock, "", before);
+    Instruction* unlock = CallInst::Create(wrapper_mutex_unlock, "", GetNextInstruction(bndstx));
+    bndtolock.insert(std::pair<Value *, Value *>(bndstx, lock));
+    bndtounlock.insert(std::pair<Value *, Value *>(bndstx, unlock));
+    
     insert_dbg_dump_bndldstx(bndstx, addr, false);
 
     bndstxlist.push_back(bndstx);
