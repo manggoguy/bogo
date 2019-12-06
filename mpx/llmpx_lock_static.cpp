@@ -185,6 +185,7 @@ STATISTIC(ConsolidatedBNDCHK, "Total bound checks consolidated");
 class llmpx : public ModulePass
 {
 private:
+    void runOnMTA(Module &);
     bool runOnModule(Module &);
     bool mpxPass(Module &);
 
@@ -479,6 +480,7 @@ private:
          * all inserted bndldx is recorded here
          */
     std::list<Value *> bndldxlist;
+    std::set<const Instruction *> mustcheklist;
     /*
          * insert key load for ptr before Instruction I
          */
@@ -1403,10 +1405,31 @@ void llmpx::create_global_constants(Module &module)
 /*
  * stub function
  */
+void llmpx::runOnMTA(Module &module){
+    llvm::legacy::PassManager Passes;
+    PassRegistry &Registry = *PassRegistry::getPassRegistry();
 
+    initializeCore(Registry);
+    initializeScalarOpts(Registry);
+    initializeIPO(Registry);
+    initializeAnalysis(Registry);
+    initializeTransformUtils(Registry);
+    initializeInstCombine(Registry);
+    initializeInstrumentation(Registry);
+    initializeTarget(Registry);
+
+    SVFModule svfModule(module);
+
+    MTA* mta = new MTA();
+    Passes.add(mta);
+    Passes.run(*svfModule.getMainLLVMModule());
+    
+    mustcheklist = mta->makeCheckList(svfModule);
+}
 
 bool llmpx::runOnModule(Module &module)
 {
+    runOnMTA(module);
     this->module = &module;
     ctx = &module.getContext();
     //prepare global constant bound
@@ -1670,6 +1693,10 @@ end:
 /*
  * insert bndldx ptr before Instruction I
  */
+bool llmpx::may_happen_parallell(Instruction *I){
+    const bool is_in = mustcheklist.find(I) != mustcheklist.end();
+    return is_in;
+}
 
 std::list<Value *>
 llmpx::insert_bound_load(Instruction *I, Value *ptr, Value *ptrval)
